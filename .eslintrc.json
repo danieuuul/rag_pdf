@@ -1,0 +1,15 @@
+{
+  "extends": ["@rocketseat/eslint-config/node"],
+  "rules": {
+    "no-useless-constructor": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "semi": false,
+        "endOfLine": "auto",
+        "trailingComma": "es5"
+      }
+    ]
+  }
+}
