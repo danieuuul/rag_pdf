@@ -7,7 +7,7 @@ import { getEmbeddings } from './getEmbeddings'
 
 async function loadDocuments() {
   const directoryLoader = new DirectoryLoader('./data', {
-    '.pdf': (path: string) => new PDFLoader(path)
+    '.pdf': (path: string) => new PDFLoader(path),
   })
   return directoryLoader.load()
 }
@@ -17,22 +17,22 @@ async function splitDocuments(documents: Document[]): Promise<Document[]> {
     chunkSize: 800,
     chunkOverlap: 80,
     lengthFunction: (text: string) => text.length,
-    keepSeparator: false
+    keepSeparator: false,
   })
   return splitter.splitDocuments(documents)
 }
 
-function calculateChunkId(chunks: Document[]) {
-  //This will create IDs like "data/monopoly.pdf:6:2"
+function calculateChunkId(chunks: Document[]): Document[] {
+  // This will create IDs like "data/monopoly.pdf:6:2"
   // Page Source : Page Number : Chunk Index
 
   let chunkId: string = ''
   let lastPageId: string = ''
   let currentChunkIndex: number = 0
 
-  chunks.map((chunk) => {
-    const source = chunk['metadata']['source']
-    const page = chunk['metadata']['loc']['pageNumber']
+  chunks.forEach((chunk) => {
+    const source = chunk.metadata.source
+    const page = chunk.metadata.loc.pageNumber
 
     const currentPageId: string = `${source}:${page}`
 
@@ -45,21 +45,21 @@ function calculateChunkId(chunks: Document[]) {
     chunkId = `${source}:${page}:${currentChunkIndex}`
     lastPageId = currentPageId
 
-    chunk['id'] = chunkId
+    chunk.id = chunkId
   })
-
   return chunks
 }
+
 async function addToChroma(chunks: Document[]) {
   const vectorStore = new Chroma(getEmbeddings(), {
-    collectionName: 'a-test-collection',
+    collectionName: 'pdf-collection',
     url: 'http://localhost:8000', // Optional, will default to this value
     collectionMetadata: {
-      'hnsw:space': 'cosine'
-    }
+      'hnsw:space': 'cosine',
+    },
   })
 
-  const chunksWithIds = calculateChunkId(chunks)
+  // const chunksWithIds = calculateChunkId(chunks)
 
   await vectorStore.addDocuments(chunks)
 }
